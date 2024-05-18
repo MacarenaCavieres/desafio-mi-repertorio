@@ -4,15 +4,16 @@ let cancion = document.getElementById("cancion");
 let artista = document.getElementById("artista");
 let tono = document.getElementById("tono");
 
-// let canciones = [];
 window.onload = getData();
 
 async function getData() {
-    await axios.get(url).then((data) => {
-        const result = data.data;
-        tbody.innerHTML = "";
-        result.forEach((item) => {
-            tbody.innerHTML += `
+    await axios
+        .get(url)
+        .then((data) => {
+            const result = data.data;
+            tbody.innerHTML = "";
+            result.forEach((item) => {
+                tbody.innerHTML += `
             <tr>
               <td>${item.id}</td>
               <td>${item.titulo}</td>
@@ -24,42 +25,57 @@ async function getData() {
               </td>
             </tr>
           `;
-        });
-    });
-    cancion.value = "";
-    artista.value = "";
-    tono.value = "";
+            });
+            document.getElementById("editar").style.display = "none";
+            cancion.value = "";
+            artista.value = "";
+            tono.value = "";
+        })
+        .catch((error) => console.error(error));
 }
 
 function nuevaCancion() {
     titulo = cancion.value;
-    artista = artista.value;
-    tono = tono.value;
+    const artistaValue = artista.value;
+    const tonoValue = tono.value;
+
+    if (!titulo || !artista || !tono) return alert("Todos los campos obligatorios");
 
     axios
         .post(url, {
             titulo,
-            artista,
-            tono,
+            artista: artistaValue,
+            tono: tonoValue,
         })
-        .then(() => getData());
+        .then(() => {
+            getData();
+        });
 }
 
 function eliminarCancion(id) {
-    axios.delete(url + `/${id}`).then(() => {
-        console.log(url + id);
-        // alert("Canción " + canciones[i].titulo + " eliminada");
-        // getData();
-    });
+    axios
+        .delete(url + `/${id}`)
+        .then(() => {
+            getData();
+        })
+        .catch((error) => console.error(error));
 }
 
-function prepararCancion(i, id) {
-    cancion.value = canciones[i].titulo;
-    artista.value = canciones[i].artista;
-    tono.value = canciones[i].tono;
-    document.getElementById("editar").setAttribute("onclick", `editarCancion('${id}')`);
-    document.getElementById("agregar").style.display = "none";
-    document.getElementById("editar").style.display = "block";
+async function prepararCancion(id) {
+    await axios
+        .get(url + `/${id}`)
+        .then((data) => {
+            const result = data.data;
+
+            cancion.value = result.titulo;
+            artista.value = result.artista;
+            tono.value = result.tono;
+
+            document.getElementById("editar").setAttribute("onclick", `editarCancion('${result.id}')`);
+            document.getElementById("agregar").style.display = "none";
+            document.getElementById("editar").style.display = "block";
+        })
+        .catch((error) => console.error(error));
 }
 
 function editarCancion(id) {
