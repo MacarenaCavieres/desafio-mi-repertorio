@@ -39,7 +39,7 @@ function nuevaCancion() {
     const artistaValue = artista.value;
     const tonoValue = tono.value;
 
-    if (!titulo || !artista || !tono) return alert("Todos los campos obligatorios");
+    if (!titulo || !artistaValue || !tonoValue) return alert("Todos los campos obligatorios");
 
     axios
         .post(url, {
